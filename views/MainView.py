@@ -255,9 +255,9 @@ class MainView(QMainWindow):
             z_title = rfdata.plot_dict['z_title']
 
             hor_trace = img[y_index_clicked]
-            hor_label = f"{z_title}({x_title}), {y_title}={y_ax[y_index_clicked]:.3g})"
+            hor_label = f"{z_title}({x_title}), {y_title}={y_ax[y_index_clicked]:.3g}"
             vert_trace = img[:, x_index_clicked]
-            vert_label = f"{z_title}({y_title}), {x_title}={x_ax[x_index_clicked]:.3g})"
+            vert_label = f"{z_title}({y_title}), {x_title}={x_ax[x_index_clicked]:.3g}"
 
             self.trace_window.plotVerticalTrace(y_ax, vert_trace, color=color, label=vert_label)
             self.trace_window.plotHorizontalTrace(x_ax, hor_trace, color=color, label=hor_label)
