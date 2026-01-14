@@ -82,6 +82,7 @@ class FilterTreeView:
             p.param('2d sweep').show()
             self.displayed_dim = 2
 
+        p.param("auto update").setValue(False)
         
         # Polar/Cartesian
         """
