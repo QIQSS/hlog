@@ -277,9 +277,8 @@ def h5_load(filepath) -> dict:
     data_dict = DATA_DICT_FORMAT.copy()
     with h5py.File(filepath, "r") as file:
         data, meta = file.get("data"), file.get("meta")
-
         if meta.attrs.get("VERSION") != 0.1: 
-            raise NotImplementedError(f"Filetype {ext} not supported")
+            raise NotImplementedError(f"VERSION not supported :)")
 
         sweep_names = data.attrs.get("sweeped_ax_names")
         out_names = data.attrs.get("result_data_names")
@@ -287,29 +286,26 @@ def h5_load(filepath) -> dict:
         if len(sweep_names) == 1:
             data_dict['sweep_dim'] = 1
             h5_build1DDataDict(data, sweep_names[0], out_names, data_dict)
-            #ph_build1DDataDict(data, titles, headers, data_dict)
         elif len(sweep_names) == 2:
             data_dict['sweep_dim'] = 2
             h5_build2DDataDict(data, sweep_names, out_names, data_dict)
-            #ph_build2DDataDict(data, titles, headers, data_dict)
         else:
             raise NotImplementedError(f"Sweep dimension not 1 or 2")
     
         data_dict['config'] = meta.attrs.get("config")
         data_dict['comments'] = meta.attrs.get("cell")
 
-
     return data_dict
 
-def h5_build1DDataDict(data, sweeped_name, out_names, data_dict):
+def h5_build1DDataDict(data, x_name, out_names, data_dict):
     # in one dimension, we use the x and out keys
-    x_data = data.get(sweeped_name)[:]
+    x_data = data.get(x_name)[:]
     data_dict['x']['data'] = x_data
-    data_dict['x']['title'] = sweeped_name
+    data_dict['x']['title'] = x_name
     data_dict['x']['range'] = findSweepRange1D(x_data)
 
-    data_dict['out']['titles'] = []
-    data_dict['out']['data'] = []
+    data_dict['out']['titles'] = [x_name]
+    data_dict['out']['data'] = [x_data]
     for i, title in enumerate(out_names):
         data_dict['out']['titles'].append(title)
         data_dict['out']['data'].append(data.get(title)[:])
