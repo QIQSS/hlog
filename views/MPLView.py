@@ -3,6 +3,7 @@ import numpy as np
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QAction, QToolBar
 from PyQt5.QtCore import Qt, pyqtSignal
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from PyQt5.Qt import QTimer
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib import colors
@@ -20,7 +21,7 @@ class MPLView(QWidget):
         super().__init__()
         self.parent = parent
 
-        self.waiting_for_update = False
+        self.update_timer = QTimer()
 
         self.figure = Figure(figsize=(5,10))
         self.ax = self.figure.add_subplot(111)
@@ -57,6 +58,7 @@ class MPLView(QWidget):
 
 
     def onNewReadFileData(self, rfdata):
+        self.update_timer.stop()
         if self.bar:
             self.bar.remove()
             del self.bar

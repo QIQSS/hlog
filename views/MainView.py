@@ -204,19 +204,17 @@ class MainView(QMainWindow):
 
         self.block_update = False
 
-        if filter_tree.autoUpdateChecked() and not graph.waiting_for_update:
-            graph.waiting_for_update = True
-            QTimer.singleShot(
-                2000,
-                lambda: self._delayed_update(
-                    rfdata, filter_tree, sweep_tree, graph
+        if filter_tree.autoUpdateChecked() and not graph.update_timer.isActive():
+            graph.update_timer.singleShot(
+                    2000,
+                    lambda: self._delayed_update(
+                        rfdata, filter_tree, sweep_tree, graph
+                    )
                 )
-            )
         
         self.hlog.db.add_fig(rfdata, graph.figure)
 
     def _delayed_update(self, rfdata, filter_tree, sweep_tree, graph):
-        graph.waiting_for_update = False
         self.prepare_and_send_plot_dict(
             rfdata.reload(), filter_tree, sweep_tree, graph
         )
