@@ -22,6 +22,7 @@ class MPLView(QWidget):
         self.parent = parent
 
         self.update_timer = QTimer()
+        self.update_timer.setSingleShot(True)
 
         self.figure = Figure(figsize=(5,10))
         self.ax = self.figure.add_subplot(111)
@@ -59,6 +60,7 @@ class MPLView(QWidget):
 
     def onNewReadFileData(self, rfdata):
         self.update_timer.stop()
+
         if self.bar:
             self.bar.remove()
             del self.bar
@@ -264,6 +266,13 @@ class MPLView(QWidget):
         self.trace_crosses = []
     # END OF HANDLING EVENTS
     
+    def wait_for_autoupdate(self, ms_time, function):
+        try:
+            self.update_timer.disconnect()
+        except TypeError:
+            pass
+        self.update_timer.timeout.connect(function)
+        self.update_timer.start(ms_time)
 
 def set_1d_ax_lim(ax, x_data, y_data, padding_factor=0.05):
     x_padding = padding_factor*(np.nanmax(x_data)-np.nanmin(x_data))

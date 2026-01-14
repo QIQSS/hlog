@@ -32,8 +32,8 @@ class DBPlots:
         if row:
             existing_hash = row[0]
             # Skip if file content hasn't changed
-            if existing_hash == rfdata.h:
-                return existing_hash
+            #if existing_hash == rfdata.h:
+            #    return existing_hash
 
             # Otherwise, update the existing record
             image_bytes = fig_to_bytes(fig)
