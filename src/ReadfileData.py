@@ -79,8 +79,13 @@ class ReadfileData:
         if self.data_dict['sweep_dim'] == 2:
             # alternate data if needed
             if alternate:
-                # flip odd rows
-                data_cp_shallow[1::2] = data_cp_shallow[1::2, ::-1]
+                start, stop, npts = self.data_dict['x']['range'][0:3]
+                to_flip = slice(1, None, 2) # odd rows by default
+
+                if start > stop and npts%2 == 0:
+                    # flip even rows if sweep is in reverse with an even numbers of point
+                    to_flip = slice(0, None, 2)
+                data_cp_shallow[to_flip] = data_cp_shallow[to_flip, ::-1]
             if transpose:
                 data_cp_shallow = data_cp_shallow.T
             # transpose by default
