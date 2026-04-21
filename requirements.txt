@@ -3,4 +3,5 @@ matplotlib==3.8
 pyqt5>=5.15.11
 pyqtgraph==0.13.1
 pytz>=2025.2
+pyvisa>=1.14.1
 -e ../pyHegel
