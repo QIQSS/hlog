@@ -29,6 +29,8 @@ class MPLToolbar:
         tb.insertAction(tb.actions()[6], self.view.actionTrace)
         tb.addSeparator()
 
+        self.view.copy_lims = tb.addAction('Copy lims', self.view.copyCurrentLims)
+
         self.view.trace_action = tb.addAction('Trace window', self.view.parent.showTraceWindow)
         self.view.trace_crosses = []
 

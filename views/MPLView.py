@@ -1,5 +1,5 @@
 import numpy as np
-from PyQt5.QtWidgets import QWidget, QVBoxLayout
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QApplication
 from PyQt5.QtCore import pyqtSignal
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 
@@ -7,6 +7,8 @@ from PyQt5.Qt import QTimer
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt import NavigationToolbar2QT as NavigationToolbar
 from matplotlib import colors
+from matplotlib.lines import Line2D
+from matplotlib.image import AxesImage
 
 
 from matplotlib.widgets import Cursor
@@ -45,12 +47,13 @@ class MPLView(QWidget):
         # init toolbars:
         MPLToolbar(self)
 
-        self.line = None # line plot
-        self.im = None # image
+        self.line: Line2D = None # line plot
+        self.im: AxesImage = None # image
         self.bar = None # colorbar
 
         self.plot_dict_fns = {} # reference functions to call for updates. Defined in self.onNewReadFileData
         self.last_plot_dict = {}
+        self.current_plotted_dim: 1|2 = None
 
         # cursor / crosshair
         self.cursor = Cursor(self.ax, useblit=True, color='black', linewidth=1)
@@ -97,6 +100,7 @@ class MPLView(QWidget):
 
             self.last_plot_dict = {}
             self.figure.tight_layout()
+            self.current_plotted_dim = 1
 
         elif rfdata.data_dict["sweep_dim"] == 2:
             self.im = self.ax.imshow(
@@ -118,6 +122,7 @@ class MPLView(QWidget):
 
             self.last_plot_dict = {}
             self.figure.tight_layout()
+            self.current_plotted_dim = 2
 
     def plot1D(self, rfdata):
         """ go through plot_dict
@@ -269,6 +274,22 @@ class MPLView(QWidget):
         for cross in self.trace_crosses:
             cross.remove()
         self.trace_crosses = []
+
+    def copyCurrentLims(self):
+        dim = self.current_plotted_dim
+        if dim not in [1,2]:
+            return
+
+        cb = QApplication.clipboard()
+        x0, x1 = self.ax.get_xlim()
+        y0, y1 = self.ax.get_ylim()
+
+        if dim == 1:
+            text = f"{x0:.6f}, {x1:.6f}"
+        elif dim == 2:
+            text = f"[{x0:.6f}, {y0:.6f}], [{x1:.6f}, {y1:.6f}]"
+        cb.setText(text)
+        self.parent.write("Copied: " + text)
     # END OF HANDLING EVENTS
     
     def wait_for_autoupdate(self, ms_time, function):
