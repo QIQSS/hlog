@@ -107,6 +107,26 @@ class ReadfileData:
                 extent = None
         return extent
     
+    def lim_to_range(self, xlim, ylim):
+        x_start, x_stop, x_nbpts, x_step = self.data_dict['x']['range']
+        y_start, y_stop, y_nbpts, y_step = self.data_dict['y']['range']
+
+        x_range = (
+            xlim[0] + np.sign(x_step)*abs(x_step)/2,
+            xlim[1] - np.sign(x_step)*abs(x_step)/2,
+            x_nbpts,
+            x_step,
+        )
+
+        y_range = (
+            ylim[0] + np.sign(y_step)*abs(y_step)/2,
+            ylim[1] - np.sign(y_step)*abs(y_step)/2,
+            y_nbpts,
+            y_step,
+        )
+
+        return {"x": x_range, "y": y_range}
+    
     def get_time_taken(self) -> str:
         sweep_time = self.data_dict["sweep_time"]
         if sweep_time is None:
