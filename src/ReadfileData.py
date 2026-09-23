@@ -192,8 +192,10 @@ class ReadfileData:
                 load_function = ph_load
             elif first_char == "%":
                 load_function = zi_txt_load
-        if ext == "hdf5":
+        elif ext == "hdf5":
             load_function = h5_load
+        elif ext == "h5":
+            load_function = zi_h5_load
         #
 
         data_dicts = load_function(filepath, loading_kwargs)
@@ -456,15 +458,51 @@ def zi_txt_load(filepath, loading_kwargs: dict = {}) -> list[dict]:
     return [data_dict]
 
 
+def zi_h5_load(filepath, loading_kwargs:dict={}) -> list[dict]:
+    # TODO: change hardcoded 000
+    if loading_kwargs == {}:
+        loading_kwargs = {'zi_h5': {'group_name': '000'}}
+    group_name = loading_kwargs.get("zi_h5").get("group_name")
+    return zi_h5_load_group(filepath, group_name)
+
+def zi_h5_load_group(filepath, group_name) -> list[dict]:
+    data_dict = deepcopy(DATA_DICT_FORMAT)
+    data_dict['out']['titles'] = []
+    data_dict['out']['data'] = []
+    data_dict['sweep_dim'] = 1
+
+    kw_to_take = ["frequency", "r", "phase", "x", "y", "tc", "bandwidth"]
+
+    with h5py.File(filepath, "r", swmr=True) as file:
+        dev = list(file[group_name].keys())[0]
+        sample_group = file[group_name][dev]["demods"]["0"]["sample"]
+
+        data_dict["x"]["title"] = "frequency"
+        data_dict["x"]["data"] = sample_group["frequency"][:]
+        data_dict['x']['range'] = findSweepRange1D(data_dict["x"]["data"])
+
+        for kw in kw_to_take:
+            data_dict["out"]["titles"].append(kw)
+            data_dict["out"]["data"].append(sample_group[kw][:])
+
+    return [data_dict]
+
+def zi_h5_preview(filepath, handler = lambda _: True):
+    """ open h5 and run handler with the file.
+    """
+    with h5py.File(filepath, "r", swmr=True) as file:
+        return handler(file)
+
+
 def h5_load(filepath, loading_kwargs:dict={}) -> list[dict]:
     """
-    loading_kwargs: {"h5": {"group_name": group_name, "result_name": result_name}}
+    loading_kwargs: {"hdf5": {"group_name": group_name, "result_name": result_name}}
 
     Returns:
         list of data_dict, one for every axes_tuple in the file
     """
 
-    if (kwargs := loading_kwargs.get("h5", None)) is not None:
+    if (kwargs := loading_kwargs.get("hdf5", None)) is not None:
         print("h5_load ", kwargs)
         return h5_load_from_results(filepath, kwargs["group_name"], kwargs["result_name"])
 

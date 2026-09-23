@@ -33,7 +33,11 @@ class PreviewWidget(QWidget):
 
     def showResultGroup(self, results_group, ask_load_fn):
         self.dict.show()
-        self.dict.set_data(results_group, ask_load_fn)
+        self.dict.set_result_group_data(results_group, ask_load_fn)
+
+    def showZiGroup(self, zi_h5_file, ask_load_fn):
+        self.dict.show()
+        self.dict.set_zi_group_data(zi_h5_file, ask_load_fn)
 
     def clear(self):
         self.image.clear()
@@ -109,7 +113,27 @@ class DictPreview(QTreeWidget):
         self.setAlternatingRowColors(True)
         self.itemDoubleClicked.connect(self.onItemDoubleClick)
 
-    def set_data(
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Space:
+            item = self.currentItem()
+            if item is not None:
+                self.onItemDoubleClick(item, 0)
+        else:
+            super().keyPressEvent(event)
+            
+    def resize_fit(self):
+        # resize fit to height
+        rows = self.model().rowCount()
+        for i in range(self.topLevelItemCount()):
+            rows += self.topLevelItem(i).childCount()
+            for j in range(self.topLevelItem(i).childCount()):
+                rows += self.topLevelItem(i).child(j).childCount()
+
+        row_h = self.sizeHintForRow(0) if rows else self.fontMetrics().height() + 6
+        height = self.header().height() + rows * row_h + 2 * self.frameWidth()
+        self.setFixedHeight(height)
+
+    def set_result_group_data(
         self,
         result_group: h5py.Group,
         ask_load_fn: Callable[[str, str], bool]
@@ -155,18 +179,26 @@ class DictPreview(QTreeWidget):
 
         self.resizeColumnToContents(0)
         self.resizeColumnToContents(1)
+        self.resize_fit()
 
-        # resize fit to height
-        rows = self.model().rowCount()
-        for i in range(self.topLevelItemCount()):
-            rows += self.topLevelItem(i).childCount()
-            for j in range(self.topLevelItem(i).childCount()):
-                rows += self.topLevelItem(i).child(j).childCount()
+    def set_zi_group_data(
+        self,
+        zi_h5_file: h5py.File,
+        ask_load_fn: Callable[[str, str], bool]
+    ):
+        """
+        ask_load_fn ignature: ask_load_fn(groupname: str, result_name: str)
+        """
+        self.clear()
+        for sweep_lbl in zi_h5_file:
+            item = QTreeWidgetItem([sweep_lbl])
+            self.addTopLevelItem(item)
+            
+            item.setData(0, Qt.UserRole, "zi_sweep")
+            item.setData(1, Qt.UserRole, sweep_lbl)
+            item.setData(2, Qt.UserRole, ask_load_fn)
+        self.resize_fit()
 
-        row_h = self.sizeHintForRow(0) if rows else self.fontMetrics().height() + 6
-        height = self.header().height() + rows * row_h + 2 * self.frameWidth()
-        self.setFixedHeight(height)
-    
 
     def onItemDoubleClick(self, item, column):
         if item.data(0, Qt.UserRole) == "result":
@@ -174,3 +206,8 @@ class DictPreview(QTreeWidget):
             data_name = item.data(2, Qt.UserRole)
             ask_load_fn = item.data(3, Qt.UserRole)
             ask_load_fn(group_name, data_name)
+
+        elif item.data(0, Qt.UserRole) == "zi_sweep":
+            group_name = item.data(1, Qt.UserRole)
+            ask_load_fn = item.data(2, Qt.UserRole)
+            ask_load_fn(group_name)

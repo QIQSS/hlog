@@ -3,7 +3,7 @@ from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtCore import Qt, QEvent, pyqtSignal
 import os
 
-from src.ReadfileData import h5_preview_results_group
+from src.ReadfileData import h5_preview_results_group, zi_h5_preview
 
 from enum import Enum, auto
 
@@ -15,6 +15,7 @@ class FileType(Enum):
     TXT = auto()
     HDF5 = auto()
     HDF5_WITH_RESULT = auto()
+    H5_ZI = auto()
 
 
 class FileTreeView(QWidget):
@@ -104,6 +105,9 @@ class FileTreeView(QWidget):
             if h5_preview_results_group(path):
                 return FileType.HDF5_WITH_RESULT
             return FileType.HDF5
+
+        elif path.endswith(".h5"):
+            return FileType.H5_ZI
 
         elif path.endswith(".txt"):
             return FileType.TXT
@@ -198,6 +202,11 @@ class FileTreeView(QWidget):
                             self.main_view.preview_widget.showResultGroup(results_group,
                             self.onOpenResultGroup)
                     )
+                elif file_type is FileType.H5_ZI:
+                    zi_h5_preview(
+                        path,
+                        handler = lambda file: self.main_view.preview_widget.showZiGroup(file, self.onOpenZiGroup),
+                    )
 
                 if png := self.main_view.hlog.db.get_fig(path):
                     self.main_view.preview_widget.showPng(png)
@@ -206,10 +215,16 @@ class FileTreeView(QWidget):
     def onOpenResultGroup(self, group_name, result_name):
         self.askOpenCurrentIndex(
             loading_kwargs={
-                "h5": {"group_name": group_name, "result_name": result_name}
+                "hdf5": {"group_name": group_name, "result_name": result_name}
             }
         )
 
+    def onOpenZiGroup(self, group_name):
+        self.askOpenCurrentIndex(
+            loading_kwargs={
+                "zi_h5": {"group_name": group_name}
+            }
+        )
     ### ACTIONS ###
 
     def askOpenCurrentIndex(self, loading_kwargs={}):
