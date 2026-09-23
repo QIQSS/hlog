@@ -184,8 +184,18 @@ class ReadfileData:
         metadata = os.stat(filepath)
 
         ext = filepath.split('.')[-1]
-        # Get load_function, fallback to pyHegel
-        load_function = {"txt": ph_load, "hdf5": h5_load}.get(ext, ph_load)
+
+        # Infer load_function
+        if ext == "txt":
+            first_char = open(filepath).read(1)
+            if first_char == "#":
+                load_function = ph_load
+            elif first_char == "%":
+                load_function = zi_txt_load
+        if ext == "hdf5":
+            load_function = h5_load
+        #
+
         data_dicts = load_function(filepath, loading_kwargs)
         return [
             ReadfileData(
@@ -392,6 +402,58 @@ def ph_findBeforeWait(headers):
     except:
         beforewait = np.nan
     return beforewait
+
+def zi_txt_load(filepath, loading_kwargs: dict = {}) -> list[dict]:
+    """
+    Fonctionne pour les fichiers contenant un seul sweep:
+        freq1 phase1
+        ...
+        freqN phaseN
+        freq1 ampl1
+        ...
+        freqN amplN
+    """
+    data_dict = deepcopy(DATA_DICT_FORMAT)
+    data_dict["sweep_dim"] = 1
+
+    headers = []
+
+    freqs = []
+    freqs_filled = False
+    outs = [[], []]
+    out_idx = 0
+ 
+    with open(filepath, "r+") as file:
+        for line in file.readlines():
+            if line.startswith("%"):
+                headers.append(line)
+                continue
+ 
+            freq, val = map(float, line.split(";"))
+ 
+            if len(freqs) != 0 and freq == freqs[0]:
+                freqs_filled = True
+                out_idx += 1
+ 
+            if not freqs_filled:
+                freqs.append(freq)
+ 
+            outs[out_idx].append(val)
+
+    freqs = np.array(freqs)
+    title_freqs = headers[-1].split(";")[0][2:]
+    out1, out2 = np.array(outs[0]), np.array(outs[1])
+    title1 = " ".join(headers[-3].split(";")[1].strip().split(" ")[-2:])
+    title2 = " ".join(headers[-1].split(";")[1].strip().split(" ")[-2:])
+
+    data_dict['x']['data'] = freqs
+    data_dict['x']['title'] = title_freqs
+    data_dict['x']['range'] = findSweepRange1D(freqs)
+
+    data_dict['out']['titles'] = [title_freqs, title1, title2]
+    data_dict['out']['data'] = [freqs, out1, out2]
+
+    return [data_dict]
 
 
 def h5_load(filepath, loading_kwargs:dict={}) -> list[dict]:
