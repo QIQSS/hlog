@@ -578,10 +578,10 @@ def h5_build1DDataDict(data, x_name, out_names, data_dict):
         data_dict['out']['titles'].append(title)
         data_dict['out']['data'].append(data.get(title)[:])
 
-def h5_build2DDataDict(data, sweeped_names, out_names, data_dict):
+def h5_build2DDataDict(data, sweeped_names, out_names, data_dict, transpose=False):
     data_dict['x']['title'] = x_lbl = sweeped_names[0]
     data_dict['y']['title'] = y_lbl = sweeped_names[1]
-    data_x, data_y = data[x_lbl][:].T, data[y_lbl][:].T
+    data_x, data_y = data[x_lbl][:], data[y_lbl][:]
     data_dict['x']['data'] = data_x
     data_dict['y']['data'] = data_y
 
@@ -592,7 +592,9 @@ def h5_build2DDataDict(data, sweeped_names, out_names, data_dict):
     data_dict['out']['data'] = []
     for i, title in enumerate(out_names):
         data_dict['out']['titles'].append(title)
-        out_data = data[title][:].T
+        out_data = data[title][:]
+        if transpose:
+            out_data = out_data.T
         data_dict['out']['data'].append(out_data)
 
     return data_dict
@@ -636,7 +638,7 @@ def h5_load_from_results(filepath, group_name, result_name):
         elif len(swept_axes) == 2:
             data_dict = deepcopy(DATA_DICT_FORMAT)
             data_dict['sweep_dim'] = 2
-            h5_build2DDataDict(group, swept_axes, out_list, data_dict)
+            h5_build2DDataDict(group, swept_axes, out_list, data_dict, transpose=True)
 
         else:
             raise NotImplementedError("Sweep dimension not 1 or 2")
