@@ -77,6 +77,7 @@ class FilterTreeView:
         self.parameters = pg.parametertree.Parameter.create(name='filters', type='group', children=children)
         self.tree = pg.parametertree.ParameterTree(showHeader=False)
         self.tree.setParameters(self.parameters, showTop=False)
+        self.tree.verticalScrollBar().setSingleStep(5)
 
         self.displayed_dim = 0
 

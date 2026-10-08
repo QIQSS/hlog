@@ -35,7 +35,7 @@ class SweepTreeView:
         self.parameters = pg.parametertree.Parameter.create(name='params', type='group', children=children)
         self.tree = pg.parametertree.ParameterTree(showHeader=False)
         self.tree.setParameters(self.parameters, showTop=False)
-
+        self.tree.verticalScrollBar().setSingleStep(5)
 
         self.need_set_data = True
         
