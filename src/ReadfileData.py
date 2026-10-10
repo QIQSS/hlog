@@ -33,6 +33,7 @@ PLOT_DICT_1D_FORMAT = {
     "x_data": [0],
     "y_data": [0],
     "grid": True,
+    "title": "",
 }
 PLOT_DICT_2D_FORMAT = {
     "img": np.array([[0], [0]]),
@@ -42,6 +43,7 @@ PLOT_DICT_2D_FORMAT = {
     "cmap": "obj",
     "extent": [0, 1, 0, 1],
     "grid": True,
+    "title": "",
 }
 
 SUPPORTED_HDF5_VERSIONS = ("0.1", "0.2", "0.3", "0.4", "0.5")

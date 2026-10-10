@@ -64,6 +64,17 @@ class MPLToolbar:
         self.view.hmarkers_action.setCheckable(True)
         h.action_button = self.view.hmarkers_action
 
+        self.secondary_toolbar.addSeparator()
+        write_title = self.view.tight_action = self.secondary_toolbar.addAction(
+            "title", self.view.write_title
+        )
+        tight = self.view.tight_action = self.secondary_toolbar.addAction(
+            "tight", lambda: [self.view.figure.tight_layout(), self.viewcanvas.draw_idle()]
+        )
+        copy = self.view.tight_action = self.secondary_toolbar.addAction(
+            "copy", self.view.copy_to_clipboard
+        )
+
         # Add the secondary toolbar to the layout
         self.view.layout().insertWidget(1, self.secondary_toolbar)  # after main toolbar
 

@@ -91,11 +91,12 @@ class MPLView(QWidget):
             ##
 
             #self.ax.add_artist(self.hmarkers)
-            self.plot_dict_fns = {
+            self.plot_dict_fns = { # Must have same keys as PLOT_DICT_1D
                 "x_title": self.ax.set_xlabel,
                 "y_title": self.ax.set_ylabel,
                 "x_or_y_data": self.line.set_data,
-                "grid": lambda visible: self.ax.grid(visible=visible, color='#DDDDDD', linestyle='-', linewidth=1, alpha=1)
+                "grid": lambda visible: self.ax.grid(visible=visible, color='#DDDDDD', linestyle='-', linewidth=1, alpha=1),
+                "title": lambda *_: None
             }
 
             self.last_plot_dict = {}
@@ -111,12 +112,13 @@ class MPLView(QWidget):
             )
             self.bar = self.figure.colorbar(self.im, ax=self.ax)
 
-            self.plot_dict_fns = {
+            self.plot_dict_fns = { # Must have same keys as PLOT_DICT_2D
                 "x_title": self.ax.set_xlabel,
                 "y_title": self.ax.set_ylabel,
                 "z_title": self.bar.set_label,
                 #"extent": self.im.set_extent,
                 "grid": lambda visible: self.ax.grid(visible=visible, color='#DDDDDD', linestyle='--', linewidth=0.8, alpha=0.3),
+                "title": lambda *_: None
                 #"clims": self.bar.set_
             }
 
@@ -290,6 +292,26 @@ class MPLView(QWidget):
             text = f"[{x0:.6f}, {y0:.6f}], [{x1:.6f}, {y1:.6f}]"
         cb.setText(text)
         self.parent.write("Copied: " + text)
+
+    def copy_to_clipboard(self):
+        from io import BytesIO
+        from PyQt5.QtWidgets import QApplication
+        from PyQt5.QtGui import QImage
+
+        buf = BytesIO()
+        self.figure.savefig(buf, format="png", dpi=200)
+        buf.seek(0)
+
+        image = QImage.fromData(buf.getvalue(), "PNG")
+        QApplication.clipboard().setImage(image)
+        self.parent.write("Figure copied")
+
+    def write_title(self):
+        print(self.last_plot_dict.keys())
+        self.ax.set_title(self.last_plot_dict["title"])
+        self.canvas.draw_idle()
+
+
     # END OF HANDLING EVENTS
     
     def wait_for_autoupdate(self, ms_time, function):

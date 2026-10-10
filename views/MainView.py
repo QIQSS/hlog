@@ -198,7 +198,8 @@ class MainView(QMainWindow):
                 "y_title": y_mod_title,
                 "x_data": rfdata.get_data(x_title),
                 "y_data": y_data,
-                "grid": True
+                "grid": True,
+                "title": rfdata.filename
             })
             rfdata.plot_dict = plot_dict # saved for Traces
             graph.plot1D(rfdata)
@@ -220,6 +221,7 @@ class MainView(QMainWindow):
                 "cmap": filter_tree.getCmap(),
                 "extent": rfdata.get_extent(transpose=transpose_checked),
                 "grid": True,
+                "title": rfdata.filename
                 #"z_scale": {False:"linear", True:"log"}[filter_tree.zLogChecked()]
             })
             rfdata.plot_dict = plot_dict # saved for Traces
