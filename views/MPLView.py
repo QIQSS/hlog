@@ -309,6 +309,7 @@ class MPLView(QWidget):
     def write_title(self):
         print(self.last_plot_dict.keys())
         self.ax.set_title(self.last_plot_dict["title"])
+        self.figure.tight_layout()
         self.canvas.draw_idle()
 
 
