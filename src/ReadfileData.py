@@ -335,11 +335,11 @@ def ph_build2DDataDict(data, titles, headers, data_dict):
     data_dict['x']['title'] = titles[x_index]
     data_dict['y']['title'] = titles[y_index]
     ph_findSweepRange2D(data, headers, data_dict)
-    #if np.isnan(np.min(data_y[0]+data_y[1])):
-    #    # incomplete/inprogress sweep
-    #    pass
-    #else:
-    data_dict['alternate'] = False if np.array_equal(data_y[0], data_y[1]) else True
+    if np.isnan(np.min(data_y[0]+data_y[1])):
+        # incomplete/inprogress sweep
+        pass
+    else:
+        data_dict['alternate'] = False if np.array_equal(data_y[0], data_y[1]) else True
 
     data_dict['out']['titles'] = []
     data_dict['out']['data'] = []
