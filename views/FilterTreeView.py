@@ -46,6 +46,7 @@ children = [
         #{'name': 'max', 'type': 'slider', 'value': 1, 'limits':(0, 1), 'step': 0.001, 'default': 1},
         {'name': 'cmap', 'type': 'list', 'values': CMAPS, 'default': 'viridis'},
         {'name': 'z log', 'type': 'bool', 'value': False},
+        {'name': 'aspect', 'type': 'list', 'values': ["auto", "equal"], 'default': "auto"},
         #{'name': 'Deinterlace', 'type': 'bool', 'value': False},
         
     ]},
@@ -160,6 +161,10 @@ class FilterTreeView:
         if cmap in CMAP_CUSTOM.keys():
             cmap = CMAP_CUSTOM[cmap]
         return cmap
+    
+    def getAspect(self):
+        aspect = self.parameters.param('2d sweep', 'aspect').value()
+        return aspect
 
     def applyOnData(self, data, data_label:str):
         p = self.parameters

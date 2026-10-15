@@ -223,7 +223,8 @@ class MainView(QMainWindow):
                 "cmap": filter_tree.getCmap(),
                 "extent": rfdata.get_extent(transpose=transpose_checked),
                 "grid": True,
-                "title": rfdata.filename
+                "title": rfdata.filename,
+                "aspect": filter_tree.getAspect()
                 #"z_scale": {False:"linear", True:"log"}[filter_tree.zLogChecked()]
             })
             rfdata.plot_dict = plot_dict # saved for Traces

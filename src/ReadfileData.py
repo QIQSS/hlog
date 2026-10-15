@@ -42,6 +42,7 @@ PLOT_DICT_2D_FORMAT = {
     "z_title": "",
     "cmap": "obj",
     "extent": [0, 1, 0, 1],
+    "aspect": "auto",
     "grid": True,
     "title": "",
 }

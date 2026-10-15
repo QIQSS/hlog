@@ -191,6 +191,11 @@ class MPLView(QWidget):
             need_redraw = True
             self.im.set_cmap(cmap)
 
+        aspect = d.pop("aspect")
+        if aspect != self.ax.get_aspect():
+            need_redraw = True
+            self.ax.set_aspect(aspect)
+
         ## IMG
         img = d.pop("img")
         last_img = last_d.pop("img", None)
@@ -236,7 +241,7 @@ class MPLView(QWidget):
             self.toolbar.push_current()
             #
 
-        # OTHER KEYS
+        # OTHER KEYS (reamining not poped)
         for key, val in d.items():
             # if val is different from before, exec the function
             if val != last_d.get(key, None):
