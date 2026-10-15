@@ -158,6 +158,10 @@ class MPLView(QWidget):
             #
             self.toolbar.home()
         
+        dpi = d.pop("dpi")
+        if dpi != self.figure.get_dpi():
+            need_redraw = True
+            self.figure.set_dpi(dpi)
 
         # OTHER KEYS
         for key, val in d.items():
@@ -195,6 +199,11 @@ class MPLView(QWidget):
         if aspect != self.ax.get_aspect():
             need_redraw = True
             self.ax.set_aspect(aspect)
+
+        dpi = d.pop("dpi")
+        if dpi != self.figure.get_dpi():
+            need_redraw = True
+            self.figure.set_dpi(dpi)
 
         ## IMG
         img = d.pop("img")

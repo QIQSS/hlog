@@ -201,7 +201,8 @@ class MainView(QMainWindow):
                 "x_data": rfdata.get_data(x_title),
                 "y_data": y_data,
                 "grid": True,
-                "title": rfdata.filename
+                "title": rfdata.filename,
+                "dpi": filter_tree.getDpi(),
             })
             rfdata.plot_dict = plot_dict # saved for Traces
             graph.plot1D(rfdata)
@@ -224,7 +225,8 @@ class MainView(QMainWindow):
                 "extent": rfdata.get_extent(transpose=transpose_checked),
                 "grid": True,
                 "title": rfdata.filename,
-                "aspect": filter_tree.getAspect()
+                "aspect": filter_tree.getAspect(),
+                "dpi": filter_tree.getDpi(),
                 #"z_scale": {False:"linear", True:"log"}[filter_tree.zLogChecked()]
             })
             rfdata.plot_dict = plot_dict # saved for Traces

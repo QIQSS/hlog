@@ -69,6 +69,9 @@ children = [
     #    {'name': 'r', 'type': 'list', 'value': []},
     #    {'name': 'theta', 'type': 'list', 'value': []}
     #]},
+    {'name': 'Figure', 'type': 'group', 'children': [
+        {'name': 'dpi', 'type': 'int', 'value': 100, 'limits': (50, 200), 'step': 50},
+    ]},
 ]
 class FilterTreeView:
     
@@ -165,6 +168,10 @@ class FilterTreeView:
     def getAspect(self):
         aspect = self.parameters.param('2d sweep', 'aspect').value()
         return aspect
+    
+    def getDpi(self):
+        dpi = self.parameters.param('Figure', 'dpi').value()
+        return dpi
 
     def applyOnData(self, data, data_label:str):
         p = self.parameters
