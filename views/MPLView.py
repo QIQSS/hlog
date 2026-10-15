@@ -162,6 +162,9 @@ class MPLView(QWidget):
         if dpi != self.figure.get_dpi():
             need_redraw = True
             self.figure.set_dpi(dpi)
+            w, h = (self.figure.get_size_inches() * self.figure.get_dpi()).astype(int)
+            self.canvas.resize(w, h)
+            self.canvas.updateGeometry()
 
         # OTHER KEYS
         for key, val in d.items():
@@ -204,6 +207,9 @@ class MPLView(QWidget):
         if dpi != self.figure.get_dpi():
             need_redraw = True
             self.figure.set_dpi(dpi)
+            w, h = (self.figure.get_size_inches() * self.figure.get_dpi()).astype(int)
+            self.canvas.resize(w, h)
+            self.canvas.updateGeometry()
 
         ## IMG
         img = d.pop("img")
