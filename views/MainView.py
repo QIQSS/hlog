@@ -171,6 +171,8 @@ class MainView(QMainWindow):
         
         if add_to_db:
             self.hlog.db.add_fig(rfdata, graph.figure)
+            if png := self.hlog.main_view.hlog.db.get_fig(rfdata.filepath):
+                self.preview_widget.showPng(png)
 
     def prepare_and_send_plot_dict(self,
         rfdata:ReadfileData,

@@ -307,8 +307,8 @@ class MPLView(QWidget):
         self.parent.write("Figure copied")
 
     def write_title(self):
-        print(self.last_plot_dict.keys())
-        self.ax.set_title(self.last_plot_dict["title"])
+        title = {"":self.last_plot_dict["title"]}.get(self.ax.get_title(), "")
+        self.ax.set_title(title)
         self.figure.tight_layout()
         self.canvas.draw_idle()
 

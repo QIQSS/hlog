@@ -65,13 +65,13 @@ class MPLToolbar:
         h.action_button = self.view.hmarkers_action
 
         self.secondary_toolbar.addSeparator()
-        write_title = self.view.tight_action = self.secondary_toolbar.addAction(
-            "title", self.view.write_title
+        write_title  = self.secondary_toolbar.addAction("title", self.view.write_title)
+        #if QApplication.keyboardModifiers() & Qt.ShiftModifier: print("Shift + click")
+
+        tight = self.secondary_toolbar.addAction(
+            "tight", lambda: [self.view.figure.tight_layout(), self.view.canvas.draw_idle()]
         )
-        tight = self.view.tight_action = self.secondary_toolbar.addAction(
-            "tight", lambda: [self.view.figure.tight_layout(), self.viewcanvas.draw_idle()]
-        )
-        copy = self.view.tight_action = self.secondary_toolbar.addAction(
+        copy = self.secondary_toolbar.addAction(
             "copy", self.view.copy_to_clipboard
         )
 
