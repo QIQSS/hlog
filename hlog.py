@@ -15,7 +15,7 @@ from src.Database import DBPlots
 
 
 class hlog(QObject):
-    sig_fileOpened = pyqtSignal(ReadfileData, bool)
+    sig_fileOpened = pyqtSignal(ReadfileData, object) #ReadfileData, bool
 
     def __init__(self, path: str, app: Optional[QApplication] = None, file=None):
         super().__init__()

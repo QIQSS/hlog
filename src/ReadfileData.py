@@ -368,12 +368,15 @@ def ph_findSweepRange2D(data, headers, data_dict):
     if 'sweep' in line_options:
         options = line_options.split(',')
         for option in options:
-            if 'start' in option:
-                try: start_y = float(option.split(' ')[-1])
-                except: pass
-            elif 'stop' in option:
-                try: stop_y = float(option.split(' ')[-1])
-                except: pass
+            try:
+                if 'start' in option:
+                    start_y = float(eval(option.split(' ')[-1]))
+                elif 'stop' in option:
+                    stop_y = float(eval(option.split(' ')[-1]))
+            except:
+                print("ph_findSweepRange2D: error in parsing range")
+                start_y = array_y[0]
+                stop_y = array_y[-1]
     else:
         start_y = array_y[0]
         stop_y = array_y[-1]
