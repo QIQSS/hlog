@@ -30,6 +30,9 @@ class FileTreeView(QWidget):
         self.view = QTreeView()
         self.view.setModel(self.model)
 
+        self.model.directoryLoaded.connect(self.hideBadFiles)
+        self.enable_hide_bad_files = False
+
         self.new_tab_asked = False
 
         # arrange columns
@@ -50,6 +53,20 @@ class FileTreeView(QWidget):
         # drag out
         self.view.setDragEnabled(True)
 
+
+    def hideBadFiles(self, path):
+        parent = self.model.index(path)
+
+        for row in range(self.model.rowCount(parent)):
+            index = self.model.index(row, 0, parent)
+
+            if ".bad." in self.model.fileName(index):
+                self.view.setRowHidden(row, parent, self.enable_hide_bad_files)
+
+            if self.model.isDir(index) and self.view.isExpanded(index):
+                self.hideBadFiles(self.model.filePath(index))
+
+    
     def makeMenu(self, item_type: ItemType, path):
         """ Build context menu based on item_type """
         menu = QMenu()
@@ -61,6 +78,7 @@ class FileTreeView(QWidget):
                     ("Open", lambda: self.sig_askOpenFile.emit(path, {})),
                     ("Open in new tab", lambda: (setattr(self, "new_tab_asked", True), self.askOpenCurrentIndex())),
                     ("Open in notepad", self.openInTE),
+                    ("Toggle *.bad.*", self.toggleRenameBad),
                 ]
 
                 match self.get_file_type(path):
@@ -168,6 +186,14 @@ class FileTreeView(QWidget):
         elif key == Qt.Key_W:
             if modifiers & Qt.ControlModifier:
                 self.main_view.closeTab()
+        
+        elif key == Qt.Key_B:
+            if modifiers & Qt.ShiftModifier:
+                self.enable_hide_bad_files = not self.enable_hide_bad_files
+                self.main_view.write("Hide bad file: " + str(self.enable_hide_bad_files))
+                self.hideBadFiles(self.model.rootPath())
+            else:
+                self.toggleRenameBad()
 
         elif (key == Qt.Key_Tab and modifiers & Qt.ControlModifier) or (
             key == Qt.Key_Backtab and modifiers & Qt.ControlModifier
@@ -248,6 +274,7 @@ class FileTreeView(QWidget):
         if not os.path.exists(path):
             self.main_view.write("Path does not exist: " + path)
             return
+
         self.model.setRootPath(path)
         self.view.setRootIndex(self.model.index(path))
         print("Path changed to:", path)
@@ -288,3 +315,30 @@ class FileTreeView(QWidget):
         path = self.model.filePath(self.view.rootIndex())
         self.model.setRootPath("")
         self.model.setRootPath(path)
+
+
+    def toggleRenameBad(self):
+        index = self.view.currentIndex()
+        if not index.isValid() or self.model.isDir(index):
+            return
+
+        path = self.model.filePath(index)
+        name = os.path.basename(path)
+        directory = os.path.dirname(path)
+
+        if ".bad." in name:
+            new_name = name.replace(".bad.", ".", 1)
+        else:
+            base, ext = os.path.splitext(name)
+            new_name = base + ".bad" + ext
+
+        new_path = os.path.join(directory, new_name)
+
+        if os.path.exists(new_path):
+            self.main_view.write("Already exists: " + new_path)
+            return
+
+        try:
+            os.rename(path, new_path)
+        except OSError as e:
+            self.main_view.write("Rename failed: " + str(e))
