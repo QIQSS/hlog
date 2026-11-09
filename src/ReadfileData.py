@@ -603,7 +603,7 @@ def h5_build2DDataDict(data, sweeped_names, out_names, data_dict, transpose=Fals
     for i, title in enumerate(out_names):
         data_dict['out']['titles'].append(title)
         out_data = data[title][:]
-        if transpose:
+        if not transpose:
             out_data = out_data.T
         data_dict['out']['data'].append(out_data)
 
